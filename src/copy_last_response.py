@@ -6,10 +6,13 @@ def run():
     chat_file = f"{env_var('alfred_workflow_data')}/chat.json"
     messages = read_chat(chat_file)
     assistant_message = next((message for message in reversed(messages) if message["role"] == "assistant"), None)
-    message = assistant_message["content"] if assistant_message else None
-    if not message:
+    if not assistant_message:
         return ""
-    return message[len("#### Assistant\n"):]
+
+    # Messages stored in chat history do not contain the assistant signature.
+    # Previously we attempted to strip a non-existent prefix which resulted in
+    # the first characters of the response being removed.
+    return assistant_message["content"]
 
 if __name__ == "__main__":
     print(run())
